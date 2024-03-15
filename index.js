@@ -8,6 +8,7 @@ import { registerValidation } from './validations/auth.js';
 import { validationResult } from 'express-validator';
 
 import UserModel from './modals/User.js'
+import checkAuth from './utils/checkAuth.js'
 
 
 mongoose.connect('mongodb+srv://admin:7798garys@prokhordb.pjnypyc.mongodb.net/blog')
@@ -22,8 +23,34 @@ const app = express();
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get('/auth/me', checkAuth, async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId);
 
+        if (!user) {
+            return res.status(404).json({
+                message: 'Пользователь не найден',
+            })
+        }
+
+        const token = jwt.sign({
+            _id: user._id,
+        },
+        'secret123',
+        {
+            expiresIn: '30d',
+        }
+        );
+
+        const {passwordHash, ...userData} = user._doc
+    
+        res.json(userData);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: 'Нет доступа',
+        });
+    }
 });
 
 app.post('/auth/login', async (req, res) => {
@@ -62,7 +89,7 @@ app.post('/auth/login', async (req, res) => {
 
         
 
-    } catch (error) {
+    } catch (err) {
         console.log(err);
         res.status(500).json({
             message: 'Не удалось зарегестрироваться',

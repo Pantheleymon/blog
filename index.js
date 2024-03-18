@@ -3,13 +3,10 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 
 import { registerValidation, loginValidation, postCreateValidation } from './validations.js';
-import handleValidationErrors from './utils/handleValidationErrors.js';
 
-import * as UserController from './contollers/UserController.js';
-import * as PostController from './contollers/PostController.js';
+import { UserController, PostController } from './contollers/index.js';
 
-import checkAuth from './utils/checkAuth.js';
-import { check } from 'express-validator';
+import { checkAuth, handleValidationErrors } from './utils/index.js';
 
 
 mongoose.connect('mongodb+srv://admin:7798garys@prokhordb.pjnypyc.mongodb.net/blog')
